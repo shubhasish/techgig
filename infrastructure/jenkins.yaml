@@ -29,6 +29,7 @@ Resources:
             yum install jenkins -y
             service jenkins start
             yum install git -y
+            usermod -aG docker jenkins
 
 
 #        BlockDeviceMappings:

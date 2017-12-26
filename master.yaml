@@ -43,10 +43,10 @@ Resources:
                 VPC: !GetAtt VPC.Outputs.VPC
                 Subnets: !GetAtt VPC.Outputs.PublicSubnets
                 SecurityGroup: !GetAtt SecurityGroups.Outputs.LoadBalancerSecurityGroup
-#    Jenkins:
-#        Type: AWS::CloudFormation::Stack
-#        Properties:
-#            TemplateURL: https://s3.amazonaws.com/techgig/jenkins.yaml
+    Jenkins:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: https://s3.amazonaws.com/techgig/jenkins.yaml
 
 
     ECS:
