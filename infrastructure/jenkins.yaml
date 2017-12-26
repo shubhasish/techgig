@@ -28,6 +28,7 @@ Resources:
             rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key
             yum install jenkins -y
             service jenkins start
+            yum install git -y
 
 
 #        BlockDeviceMappings:
