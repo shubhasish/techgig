@@ -16,52 +16,57 @@ Description: >
 
 Resources:
 
-    VPC:
+#    VPC:
+#        Type: AWS::CloudFormation::Stack
+#        Properties:
+#            TemplateURL: https://s3.amazonaws.com/techgig/vpc.yaml
+#            Parameters:
+#                EnvironmentName:    !Ref AWS::StackName
+#                VpcCIDR:            10.180.0.0/16
+#                PublicSubnet1CIDR:  10.180.8.0/21
+#                PrivateSubnet1CIDR: 10.180.24.0/21
+#
+#    SecurityGroups:
+#        Type: AWS::CloudFormation::Stack
+#        Properties:
+#            TemplateURL: https://s3.amazonaws.com/techgig/security-groups.yaml
+#            Parameters:
+#                EnvironmentName: !Ref AWS::StackName
+#                VPC: !GetAtt VPC.Outputs.VPC
+#
+#    ALB:
+#        Type: AWS::CloudFormation::Stack
+#        Properties:
+#            TemplateURL: https://s3.amazonaws.com/techgig/load-balancers.yaml
+#            Parameters:
+#                EnvironmentName: !Ref AWS::StackName
+#                VPC: !GetAtt VPC.Outputs.VPC
+#                Subnets: !GetAtt VPC.Outputs.PublicSubnets
+#                SecurityGroup: !GetAtt SecurityGroups.Outputs.LoadBalancerSecurityGroup
+#    Jenkins:
+#        Type: AWS::CloudFormation::Stack
+#        Properties:
+#            TemplateURL: https://s3.amazonaws.com/techgig/jenkins.yaml
+
+    ReviewBoard:
         Type: AWS::CloudFormation::Stack
         Properties:
-            TemplateURL: https://s3.amazonaws.com/techgig/vpc.yaml
-            Parameters:
-                EnvironmentName:    !Ref AWS::StackName
-                VpcCIDR:            10.180.0.0/16
-                PublicSubnet1CIDR:  10.180.8.0/21
-                PrivateSubnet1CIDR: 10.180.24.0/21
-
-    SecurityGroups:
-        Type: AWS::CloudFormation::Stack
-        Properties:
-            TemplateURL: https://s3.amazonaws.com/techgig/security-groups.yaml
-            Parameters:
-                EnvironmentName: !Ref AWS::StackName
-                VPC: !GetAtt VPC.Outputs.VPC
-
-    ALB:
-        Type: AWS::CloudFormation::Stack
-        Properties:
-            TemplateURL: https://s3.amazonaws.com/techgig/load-balancers.yaml
-            Parameters:
-                EnvironmentName: !Ref AWS::StackName
-                VPC: !GetAtt VPC.Outputs.VPC
-                Subnets: !GetAtt VPC.Outputs.PublicSubnets
-                SecurityGroup: !GetAtt SecurityGroups.Outputs.LoadBalancerSecurityGroup
-    Jenkins:
-        Type: AWS::CloudFormation::Stack
-        Properties:
-            TemplateURL: https://s3.amazonaws.com/techgig/jenkins.yaml
+            TemplateURL: https://s3.amazonaws.com/techgig/reviewboard.yaml
 
 
-    ECS:
-        Type: AWS::CloudFormation::Stack
-        DependsOn: ALB
-        Properties:
-            TemplateURL: https://s3.amazonaws.com/techgig/ecs-cluster.yaml
-
-            Parameters:
-                EnvironmentName: !Ref AWS::StackName
-                InstanceType: t2.small
-                ClusterSize: 1
-                VPC: !GetAtt VPC.Outputs.VPC
-                SecurityGroup: !GetAtt SecurityGroups.Outputs.ECSHostSecurityGroup
-                Subnets: !GetAtt VPC.Outputs.PrivateSubnets
+#    ECS:
+#        Type: AWS::CloudFormation::Stack
+#        DependsOn: ALB
+#        Properties:
+#            TemplateURL: https://s3.amazonaws.com/techgig/ecs-cluster.yaml
+#
+#            Parameters:
+#                EnvironmentName: !Ref AWS::StackName
+#                InstanceType: t2.small
+#                ClusterSize: 1
+#                VPC: !GetAtt VPC.Outputs.VPC
+#                SecurityGroup: !GetAtt SecurityGroups.Outputs.ECSHostSecurityGroup
+#                Subnets: !GetAtt VPC.Outputs.PrivateSubnets
 
 #    ProductService:
 #        Type: AWS::CloudFormation::Stack

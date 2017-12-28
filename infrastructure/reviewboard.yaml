@@ -17,19 +17,16 @@ Resources:
         InstanceType: !Ref InstanceType
         AvailabilityZone: "us-east-1a"
         SecurityGroupIds: [!GetAtt SSHSecurityGroup.GroupId]
-        SubnetId: !Ref JenkinsSubnet
-        UserData:                       
-          Fn::Base64: !Sub |            
+        SubnetId: !Ref ReviewBoardSubnet
+        UserData:
+          Fn::Base64: !Sub |
             #!/bin/bash -xe
             yum update -y
-            yum install java-1.8.0 -y
-            yum remove java-1.7.0-openjdk -y
-            wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
-            rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key
-            yum install jenkins -y
-            service jenkins start
             yum install git -y
-            usermod -aG docker jenkins
+            pip install docker-compose
+            cd /opt && git clone https://github.com/ikatson/docker-reviewboard.git
+            sleep 10
+            /usr/local/bin/docker-compose -f /opt/docker-reviewboard/docker-compose.yml up -d
 
 
 #        BlockDeviceMappings:
@@ -54,7 +51,7 @@ Resources:
    SSHSecurityGroup:
       Type: "AWS::EC2::SecurityGroup"
       Properties:
-        VpcId: !Ref JenkinsVPC
+        VpcId: !Ref ReviewBoardVPC
         GroupDescription: "Enable SSH access via port 22"
         SecurityGroupIngress:
             -
@@ -64,63 +61,63 @@ Resources:
               ToPort: "22"
             -
               CidrIp: "0.0.0.0/0"
-              FromPort: "8080"
+              FromPort: "8000"
               IpProtocol: -1
-              ToPort: "8080"
+              ToPort: "8000"
 
-   JenkinsVPC:
+   ReviewBoardVPC:
       Type: "AWS::EC2::VPC"
       Properties:
         CidrBlock: "10.0.0.0/16"
         Tags:
            - Key: "Name"
-             Value: "Jenkin's VPC"
+             Value: "ReviewBoard VPC"
 
-   JenkinsSubnet:
+   ReviewBoardSubnet:
       Type: "AWS::EC2::Subnet"
       Properties:
-        VpcId: !Ref JenkinsVPC
+        VpcId: !Ref ReviewBoardVPC
         AvailabilityZone: "us-east-1a"
         CidrBlock: "10.0.1.0/24"
         MapPublicIpOnLaunch: true
         Tags:
            - Key: "Name"
-             Value: "Jenkin's Subnet"
+             Value: "ReviewBoard Subnet"
 
    InternetGateway:
       Type: "AWS::EC2::InternetGateway"
-      DependsOn: JenkinsVPC
+      DependsOn: ReviewBoardVPC
       Properties:
         Tags:
           - Key: "Name"
-            Value: "Jenkins IgW"
+            Value: "ReviewBoard IgW"
 
    InternetGatewayAttachment:
       Type: "AWS::EC2::VPCGatewayAttachment"
       DependsOn: InternetGateway
       Properties:
          InternetGatewayId: !Ref InternetGateway
-         VpcId: !Ref JenkinsVPC
+         VpcId: !Ref ReviewBoardVPC
 
 
-   JenkinsRouteTable:
+   ReviewBoardRouteTable:
       Type: "AWS::EC2::RouteTable"
       Properties:
-         VpcId: !Ref JenkinsVPC
+         VpcId: !Ref ReviewBoardVPC
          Tags:
             - Key: "Name"
-              Value: "Jenkins Route Table"
+              Value: "ReviewBoard Route Table"
 
    DefaultPublicRoute:
       Type: "AWS::EC2::Route"
       DependsOn: InternetGatewayAttachment
       Properties:
-         RouteTableId: !Ref JenkinsRouteTable
+         RouteTableId: !Ref ReviewBoardRouteTable
          DestinationCidrBlock: "0.0.0.0/0"
          GatewayId: !Ref InternetGateway
 
    PublicSubnet1RouteTableAssociation:
       Type: "AWS::EC2::SubnetRouteTableAssociation"
       Properties:
-         RouteTableId: !Ref JenkinsRouteTable
-         SubnetId: !Ref JenkinsSubnet
+         RouteTableId: !Ref ReviewBoardRouteTable
+         SubnetId: !Ref ReviewBoardSubnet
