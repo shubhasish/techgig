@@ -102,7 +102,7 @@ Resources:
     NatGateway1EIP:
         Type: AWS::EC2::EIP
         DependsOn: InternetGatewayAttachment
-        Properties: 
+        Properties:
             Domain: vpc
 
     NatGateway2EIP:
@@ -173,26 +173,6 @@ Resources:
             RouteTableId: !Ref PrivateRouteTable1
             SubnetId: !Ref PrivateSubnet1
 
-#    PrivateRouteTable2:
-#        Type: AWS::EC2::RouteTable
-#        Properties:
-#            VpcId: !Ref VPC
-#            Tags:
-#                - Key: Name
-#                  Value: !Sub ${EnvironmentName} Private Routes (AZ2)
-#
-#    DefaultPrivateRoute2:
-#        Type: AWS::EC2::Route
-#        Properties:
-#            RouteTableId: !Ref PrivateRouteTable2
-#            DestinationCidrBlock: 0.0.0.0/0
-#            NatGatewayId: !Ref NatGateway2
-
-#    PrivateSubnet2RouteTableAssociation:
-#        Type: AWS::EC2::SubnetRouteTableAssociation
-#        Properties:
-#            RouteTableId: !Ref PrivateRouteTable2
-#            SubnetId: !Ref PrivateSubnet2
 
 Outputs: 
 

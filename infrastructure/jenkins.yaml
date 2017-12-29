@@ -18,6 +18,9 @@ Resources:
         AvailabilityZone: "us-east-1a"
         SecurityGroupIds: [!GetAtt SSHSecurityGroup.GroupId]
         SubnetId: !Ref JenkinsSubnet
+        Tags:
+          - Key: "Name"
+            Value: "Jenkins Server"
         UserData:                       
           Fn::Base64: !Sub |            
             #!/bin/bash -xe

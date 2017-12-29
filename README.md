@@ -44,7 +44,7 @@ The templates below are included in this repository and reference architecture:
 
 | Template | Description |
 | --- | --- | 
-| [master.yaml](master.yaml) | This is the master template - deploy it to CloudFormation and it includes all of the others automatically. |
+| [master.yaml](infrastructure/master.yaml) | This is the master template - deploy it to CloudFormation and it includes all of the others automatically. |
 | [infrastructure/vpc.yaml](infrastructure/vpc.yaml) | This template deploys a VPC with a pair of public and private subnets spread across two Availability Zones. It deploys an [Internet gateway](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Internet_Gateway.html), with a default route on the public subnets. It deploys a pair of NAT gateways (one in each zone), and default routes for them in the private subnets. |
 | [infrastructure/security-groups.yaml](infrastructure/security-groups.yaml) | This template contains the [security groups](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_SecurityGroups.html) required by the entire stack. They are created in a separate nested template, so that they can be referenced by all of the other nested templates. |
 | [infrastructure/load-balancers.yaml](infrastructure/load-balancers.yaml) | This template deploys an ALB to the public subnets, which exposes the various ECS services. It is created in in a separate nested template, so that it can be referenced by all of the other nested templates and so that the various ECS services can register with it. |
@@ -78,7 +78,7 @@ You can launch this CloudFormation stack in the US East (N. Virginia) Region in 
 2. Copy one of the existing service templates in [services/*](/services).
 3. Update the `ContainerName` and `Image` parameters to point to your container image instead of the example container.
 4. Increment the `ListenerRule` priority number (no two services can have the same priority number - this is used to order the ALB path based routing rules).
-5. Copy one of the existing service definitions in [master.yaml](master.yaml) and point it at your new service template. Specify the HTTP `Path` at which you want the service exposed. 
+5. Copy one of the existing service definitions in [master.yaml](infrastructure/master.yaml) and point it at your new service template. Specify the HTTP `Path` at which you want the service exposed. 
 6. Deploy the templates as a new stack, or as an update to an existing stack.
 
 ### Setup centralized container logging
@@ -93,7 +93,7 @@ For more information, see the [LogConfiguration](http://docs.aws.amazon.com/Amaz
 
 ### Change the ECS host instance type
 
-This is specified in the [master.yaml](master.yaml) template.
+This is specified in the [master.yaml](infrastructure/master.yaml) template.
 
 By default, [t2.large](https://aws.amazon.com/ec2/instance-types/) instances are used, but you can change this by modifying the following section:
 
@@ -135,7 +135,7 @@ This set of templates deploys the following network design:
 | Private Subnet | 10.180.24.0/21 | 2,041 | The private subnet in the first Availability Zone |
 | Private Subnet | 10.180.32.0/21 | 2,041 | The private subnet in the second Availability Zone |
 
-You can adjust the CIDR ranges used in this section of the [master.yaml](master.yaml) template:
+You can adjust the CIDR ranges used in this section of the [master.yaml](infrastructure/master.yaml) template:
 
 ```
 VPC:
