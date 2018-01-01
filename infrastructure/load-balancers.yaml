@@ -72,6 +72,6 @@ Outputs:
         Description: A reference to a port 80 listener
         Value: !Ref LoadBalancerListener
         Export:
-           Name: !Sub '${EnvironmentName}-ListnerId'
+           Name: !Sub '${EnvironmentName}-Listner'
 
     

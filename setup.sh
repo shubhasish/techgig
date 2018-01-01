@@ -23,13 +23,13 @@ aws s3 cp infrastructure/$files s3://techgig.infra/$files
 done
 
 echo "Deploying dev environment"
-aws cloudformation create-stack --stack-name dev --template-body file://infrastructure/master.yaml
+aws cloudformation create-stack --stack-name dev --template-body file://infrastructure/infrastructure.yaml
 
-echo "Deploying stagging environment"
-aws cloudformation create-stack --stack-name staging --template-body file://infrastructure/master.yaml
+echo "Deploying staging environment"
+aws cloudformation create-stack --stack-name staging --template-body file://infrastructure/infrastructure.yaml
 
 echo "Deploying Production environment"
-aws cloudformation create-stack --stack-name production --template-body file://infrastructure/master.yaml
+aws cloudformation create-stack --stack-name production --template-body file://infrastructure/infrastructure.yaml
 
 echo "Deploying Jenkins"
-aws cloudformation create-stack --stack-name jenkins --template-body file://infrastructure/jenkins.yaml
+aws cloudformation create-stack --stack-name infra-components --template-body file://infrastructure/components.yaml

@@ -8,6 +8,14 @@ Parameters:
       Default: 't2.small'
       ConstraintDescription: 'must be a valid EC2 instance type.'
 
+   Vpc:
+      Description: "Default VPC"
+      Type: "String"
+
+   Subnet:
+      Description: "The public Subnet"
+      Type: "String"
+
 Resources:
    Ec2Instances:
       Type: "AWS::EC2::Instance"
@@ -17,7 +25,7 @@ Resources:
         InstanceType: !Ref InstanceType
         AvailabilityZone: "us-east-1a"
         SecurityGroupIds: [!GetAtt SSHSecurityGroup.GroupId]
-        SubnetId: !Ref JenkinsSubnet
+        SubnetId: !Ref Subnet
         Tags:
           - Key: "Name"
             Value: "Jenkins Server"
@@ -33,6 +41,7 @@ Resources:
             service jenkins start
             yum install git -y
             usermod -aG docker jenkins
+            service jenkins restart
 
 
 #        BlockDeviceMappings:
@@ -57,7 +66,7 @@ Resources:
    SSHSecurityGroup:
       Type: "AWS::EC2::SecurityGroup"
       Properties:
-        VpcId: !Ref JenkinsVPC
+        VpcId: !Ref Vpc
         GroupDescription: "Enable SSH access via port 22"
         SecurityGroupIngress:
             -
@@ -71,59 +80,3 @@ Resources:
               IpProtocol: -1
               ToPort: "8080"
 
-   JenkinsVPC:
-      Type: "AWS::EC2::VPC"
-      Properties:
-        CidrBlock: "10.0.0.0/16"
-        Tags:
-           - Key: "Name"
-             Value: "Jenkin's VPC"
-
-   JenkinsSubnet:
-      Type: "AWS::EC2::Subnet"
-      Properties:
-        VpcId: !Ref JenkinsVPC
-        AvailabilityZone: "us-east-1a"
-        CidrBlock: "10.0.1.0/24"
-        MapPublicIpOnLaunch: true
-        Tags:
-           - Key: "Name"
-             Value: "Jenkin's Subnet"
-
-   InternetGateway:
-      Type: "AWS::EC2::InternetGateway"
-      DependsOn: JenkinsVPC
-      Properties:
-        Tags:
-          - Key: "Name"
-            Value: "Jenkins IgW"
-
-   InternetGatewayAttachment:
-      Type: "AWS::EC2::VPCGatewayAttachment"
-      DependsOn: InternetGateway
-      Properties:
-         InternetGatewayId: !Ref InternetGateway
-         VpcId: !Ref JenkinsVPC
-
-
-   JenkinsRouteTable:
-      Type: "AWS::EC2::RouteTable"
-      Properties:
-         VpcId: !Ref JenkinsVPC
-         Tags:
-            - Key: "Name"
-              Value: "Jenkins Route Table"
-
-   DefaultPublicRoute:
-      Type: "AWS::EC2::Route"
-      DependsOn: InternetGatewayAttachment
-      Properties:
-         RouteTableId: !Ref JenkinsRouteTable
-         DestinationCidrBlock: "0.0.0.0/0"
-         GatewayId: !Ref InternetGateway
-
-   PublicSubnet1RouteTableAssociation:
-      Type: "AWS::EC2::SubnetRouteTableAssociation"
-      Properties:
-         RouteTableId: !Ref JenkinsRouteTable
-         SubnetId: !Ref JenkinsSubnet

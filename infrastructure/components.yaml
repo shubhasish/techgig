@@ -1,0 +1,40 @@
+Description: >
+
+    This template deploys a default VPC, a public subnet. It also deploys an Internet Gateway, with a default
+    route on the public subnets. It deploys a pair of NAT Gateways (one in each AZ),
+    and default routes for them in the private subnets.
+
+    It then deploys a Jenkins' server in the above VPC and subnet.
+
+    Finally, it deploys a Review Board Server.
+
+    Last Modified: 28th December 2017
+    Author: Subhasish Panda (subhasish.panda@talentica.com)
+
+Resources:
+
+    DefaultVPC:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: https://s3.amazonaws.com/techgig.infra/default_vpc.yaml
+            Parameters:
+                VpcCIDR:           "10.0.0.0/16"
+                PublicSubnetCIDR:  "10.0.1.0/24"
+
+
+    Jenkins:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: https://s3.amazonaws.com/techgig.infra/jenkins.yaml
+            Parameters:
+                Subnet: !GetAtt DefaultVPC.Outputs.DefaultSubnet
+                Vpc: !GetAtt DefaultVPC.Outputs.DefaultVPC
+
+    ReviewBoard:
+        Type: AWS::CloudFormation::Stack
+        Properties:
+            TemplateURL: https://s3.amazonaws.com/techgig.infra/reviewboard.yaml
+            Parameters:
+                Vpc: !GetAtt DefaultVPC.Outputs.DefaultVPC
+                Subnet: !GetAtt DefaultVPC.Outputs.DefaultSubnet
+

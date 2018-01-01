@@ -1,0 +1,89 @@
+Description: >
+    This template deploys a default VPC, with a default public subnet. It deploys an Internet Gateway, with a default route on the public subnet. It deploys a pair of NAT Gateways (one in each AZ), and default routes for them in the private subnets.
+
+Parameters:
+    VpcCIDR:
+        Description: Please enter the IP range (CIDR notation) for this VPC
+        Type: String
+        Default: "10.0.0.0/16"
+
+    PublicSubnetCIDR:
+        Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
+        Type: String
+        Default: "10.0.1.0/24"
+
+
+
+Resources:
+   DefaultVPC:
+      Type: "AWS::EC2::VPC"
+      Properties:
+        CidrBlock: !Ref VpcCIDR
+        Tags:
+           - Key: "Name"
+             Value: "Default VPC"
+
+   DefaultSubnet:
+      Type: "AWS::EC2::Subnet"
+      Properties:
+         VpcId: !Ref DefaultVPC
+         AvailabilityZone: "us-east-1a"
+         CidrBlock: !Ref PublicSubnetCIDR
+         MapPublicIpOnLaunch: true
+         Tags:
+            - Key: "Name"
+              Value: "Default Subnet"
+
+   InternetGateway:
+      Type: "AWS::EC2::InternetGateway"
+      DependsOn: DefaultVPC
+      Properties:
+        Tags:
+          - Key: "Name"
+            Value: "Default IgW"
+
+   InternetGatewayAttachment:
+      Type: "AWS::EC2::VPCGatewayAttachment"
+      DependsOn: InternetGateway
+      Properties:
+         InternetGatewayId: !Ref InternetGateway
+         VpcId: !Ref DefaultVPC
+
+
+   DefaultRouteTable:
+      Type: "AWS::EC2::RouteTable"
+      Properties:
+         VpcId: !Ref DefaultVPC
+         Tags:
+            - Key: "Name"
+              Value: "Default Route Table"
+
+   DefaultPublicRoute:
+      Type: "AWS::EC2::Route"
+      DependsOn: InternetGatewayAttachment
+      Properties:
+         RouteTableId: !Ref DefaultRouteTable
+         DestinationCidrBlock: "0.0.0.0/0"
+         GatewayId: !Ref InternetGateway
+
+   PublicSubnetRouteTableAssociation:
+      Type: "AWS::EC2::SubnetRouteTableAssociation"
+      Properties:
+         RouteTableId: !Ref DefaultRouteTable
+         SubnetId: !Ref DefaultSubnet
+
+Outputs:
+
+    DefaultVPC:
+        Description: A reference to the created VPC
+        Value: !Ref DefaultVPC
+
+    DefaultSubnets:
+        Description: A list of the public subnets
+        Value: !Join [ ",", [ !Ref DefaultSubnet]]
+
+    DefaultSubnet:
+        Description: A reference to the public subnet in the 1st Availability Zone
+        Value: !Ref DefaultSubnet
+
+

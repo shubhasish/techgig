@@ -8,6 +8,14 @@ Parameters:
       Default: 't2.small'
       ConstraintDescription: 'must be a valid EC2 instance type.'
 
+   Vpc:
+      Description: "Default VPC"
+      Type: "String"
+
+   Subnet:
+      Description: "The public Subnet"
+      Type: "String"
+
 Resources:
    Ec2Instances:
       Type: "AWS::EC2::Instance"
@@ -17,7 +25,7 @@ Resources:
         InstanceType: !Ref InstanceType
         AvailabilityZone: "us-east-1a"
         SecurityGroupIds: [!GetAtt SSHSecurityGroup.GroupId]
-        SubnetId: !Ref ReviewBoardSubnet
+        SubnetId: !Ref Subnet
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash -xe
@@ -51,7 +59,7 @@ Resources:
    SSHSecurityGroup:
       Type: "AWS::EC2::SecurityGroup"
       Properties:
-        VpcId: !Ref ReviewBoardVPC
+        VpcId: !Ref Vpc
         GroupDescription: "Enable SSH access via port 22"
         SecurityGroupIngress:
             -
@@ -64,60 +72,3 @@ Resources:
               FromPort: "8000"
               IpProtocol: -1
               ToPort: "8000"
-
-   ReviewBoardVPC:
-      Type: "AWS::EC2::VPC"
-      Properties:
-        CidrBlock: "10.0.0.0/16"
-        Tags:
-           - Key: "Name"
-             Value: "ReviewBoard VPC"
-
-   ReviewBoardSubnet:
-      Type: "AWS::EC2::Subnet"
-      Properties:
-        VpcId: !Ref ReviewBoardVPC
-        AvailabilityZone: "us-east-1a"
-        CidrBlock: "10.0.1.0/24"
-        MapPublicIpOnLaunch: true
-        Tags:
-           - Key: "Name"
-             Value: "ReviewBoard Subnet"
-
-   InternetGateway:
-      Type: "AWS::EC2::InternetGateway"
-      DependsOn: ReviewBoardVPC
-      Properties:
-        Tags:
-          - Key: "Name"
-            Value: "ReviewBoard IgW"
-
-   InternetGatewayAttachment:
-      Type: "AWS::EC2::VPCGatewayAttachment"
-      DependsOn: InternetGateway
-      Properties:
-         InternetGatewayId: !Ref InternetGateway
-         VpcId: !Ref ReviewBoardVPC
-
-
-   ReviewBoardRouteTable:
-      Type: "AWS::EC2::RouteTable"
-      Properties:
-         VpcId: !Ref ReviewBoardVPC
-         Tags:
-            - Key: "Name"
-              Value: "ReviewBoard Route Table"
-
-   DefaultPublicRoute:
-      Type: "AWS::EC2::Route"
-      DependsOn: InternetGatewayAttachment
-      Properties:
-         RouteTableId: !Ref ReviewBoardRouteTable
-         DestinationCidrBlock: "0.0.0.0/0"
-         GatewayId: !Ref InternetGateway
-
-   PublicSubnet1RouteTableAssociation:
-      Type: "AWS::EC2::SubnetRouteTableAssociation"
-      Properties:
-         RouteTableId: !Ref ReviewBoardRouteTable
-         SubnetId: !Ref ReviewBoardSubnet
