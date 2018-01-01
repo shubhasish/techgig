@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 command=`command -v aws | wc -m`
 
 if [[ command -gt 0 ]]
